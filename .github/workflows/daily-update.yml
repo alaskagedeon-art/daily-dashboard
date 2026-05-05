@@ -1,0 +1,45 @@
+name: Daily Dashboard Update
+
+on:
+  schedule:
+    - cron: '0 14 * * *'  # 6:00 AM PT (UTC-8)
+  workflow_dispatch:       # Manual trigger from GitHub Actions tab
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Update dashboard content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python update_dashboard.py
+
+      - name: Commit updated HTML
+        run: |
+          git config user.name "Dashboard Bot"
+          git config user.email "bot@daily-dashboard.local"
+          git add index.html
+          git diff --staged --quiet || git commit -m "Daily update $(date -u '+%Y-%m-%d')"
+          git push
+
+      - name: Deploy to Vercel
+        run: |
+          npm install -g vercel@latest --quiet
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: team_ikZ4KVtrThFLQHt8U27UjG5s
+          VERCEL_PROJECT_ID: prj_ZWb8ep6AhDVvjHXPcA5JASPzzKjb

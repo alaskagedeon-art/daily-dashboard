@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Center — Alaska Gedeon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #F5F2EE;
+  --surface:      #FFFFFF;
+  --surface-2:    #F9F7F4;
+  --border:       #E0DDD8;
+  --border-light: #EDEAE5;
+  --text:         #1C1917;
+  --text-2:       #4A4743;
+  --muted:        #9A958F;
+  --subtle:       #C8C3BB;
+
+  --accent:       #2C3E2D;
+  --accent-mid:   #3D5C3E;
+  --accent-light: #EBF0EB;
+
+  --warm:         #B05236;
+  --warm-bg:      #F7EDE8;
+  --warm-border:  #DEBB9A;
+
+  --gold:         #907B30;
+  --gold-bg:      #F5F0E2;
+
+  --radius:       8px;
+  --radius-sm:    4px;
+}
+
+html { font-size: 14px; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-weight: 400;
+  min-height: 100vh;
+}
+
+/* ---- TOPBAR ---- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 48px;
+  gap: 16px;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.topbar-date {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+.topbar-divider {
+  color: var(--subtle);
+  font-size: 12px;
+}
+.topbar-title {
+  font-size: 12px;
+  color: var(--muted);
+}
+.topbar-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--warm-bg);
+  border: 1px solid var(--warm-border);
+  color: var(--warm);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.alert-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warm);
+  flex-shrink: 0;
+}
+
+/* ---- TABBAR ---- */
+.tabbar {
+  position: sticky;
+  top: 48px;
+  z-index: 99;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  padding: 0 32px;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabbar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 16px;
+  height: 42px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--text-2); }
+.tab-btn.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* ---- CONTENT ---- */
+.content-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ---- SECTION HEADER ---- */
+.section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ---- TWO-COLUMN ---- */
+.two-col-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 700px) {
+  .two-col-layout { grid-template-columns: 1fr; }
+  .topbar { padding: 0 16px; }
+  .tabbar { padding: 0 8px; }
+  .content-wrap { padding: 20px 16px 60px; }
+}
+
+/* ---- CARDS ---- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+.card + .card { margin-top: 12px; }
+
+/* ---- NARRATIVE CARDS ---- */
+.narrative-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 20px 20px 23px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.narrative-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 8px 0 0 8px;
+}
+.nc-red::before    { background: var(--warm); }
+.nc-gold::before   { background: var(--gold); }
+.nc-muted::before  { background: var(--subtle); }
+.nc-green::before  { background: var(--accent); }
+
+.nc-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.nc-num {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--subtle);
+  letter-spacing: 0.06em;
+}
+.nc-tag {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+.nc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.nc-body {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.nc-footer {
+  display: flex;
+  gap: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+.nc-footer-item {
+  font-size: 11px;
+  color: var(--muted);
+}
+.nc-footer-item span {
+  font-weight: 600;
+  color: var(--text-2);
+  margin-left: 4px;
+}
+
+/* ---- PRIORITY LIST ---- */
+.priority-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 16px 16px 19px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.priority-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.pi-red::before  { background: var(--warm); }
+.pi-gold::before { background: var(--gold); }
+.pi-green::before { background: var(--accent); }
+
+.pi-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.pi-body {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+
+/* ---- NEWS BULLETS ---- */
+.news-list { margin-top: 20px; }
+.news-list .section-title { margin-bottom: 12px; }
+.news-bullet {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-2);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+  line-height: 1.5;
+}
+.news-bullet:last-child { border-bottom: none; }
+.news-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--subtle);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ---- STAT PILL ---- */
+.stat-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+}
+.pill-warm  { color: var(--warm);  background: var(--warm-bg);  border-color: var(--warm-border); }
+.pill-green { color: var(--accent-mid); background: var(--accent-light); border-color: #BDD4BE; }
+.pill-gold  { color: var(--gold);  background: var(--gold-bg);  border-color: #D4C080; }
+.pill-muted { color: var(--muted); background: var(--surface-2); border-color: var(--border); }
+
+/* ---- CALENDAR ---- */
+.cal-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 700px) { .cal-layout { grid-template-columns: 1fr; } }
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.cal-month-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.cal-nav-btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.cal-nav-btn:hover { background: var(--surface-2); }
+.cal-today-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid #BDD4BE;
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.cal-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.cal-dow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  padding: 4px 0;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-cell {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  min-height: 72px;
+  padding: 6px 8px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.12s;
+}
+.cal-cell:hover { border-color: var(--border); }
+.cal-cell.other-month { opacity: 0.4; }
+.cal-cell.today {
+  border-color: var(--accent);
+}
+.cal-cell.today .cal-day-num { color: var(--accent); font-weight: 700; }
+.cal-cell.selected { border-color: var(--accent-mid); background: var(--accent-light); }
+.cal-day-num {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.cal-event-pill {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 2px;
+  padding: 1px 4px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid var(--accent);
+}
+
+/* ---- GCAL SIDEBAR ---- */
+.gcal-sidebar .card { padding: 20px; }
+.gcal-setup-step {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.gcal-step-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.gcal-step-body {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.gcal-step-body strong { color: var(--text); font-weight: 600; }
+.gcal-input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-top: 6px;
+  outline: none;
+}
+.gcal-input:focus { border-color: var(--accent); }
+.gcal-input::placeholder { color: var(--subtle); }
+.btn-primary {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 12px;
+}
+.btn-primary:hover { background: var(--accent-mid); }
+.btn-link {
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.btn-link:hover { color: var(--text-2); }
+.gcal-g-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #4285f4;
+  flex-shrink: 0;
+}
+.connected-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+}
+.connected-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.gcal-event-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.gcal-event-item:last-child { border-bottom: none; }
+.gcal-event-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 20px;
+}
+.gcal-event-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.gcal-event-time {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ---- REFRAME ---- */
+.reframe-header {
+  margin-bottom: 28px;
+}
+.reframe-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.reframe-tagline {
+  font-size: 14px;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.reframe-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) { .pillars-grid { grid-template-columns: 1fr; } }
+
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.pillar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.pillar-desc {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.pillar-current {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.pillar-current strong { color: var(--text); font-weight: 500; }
+.pillar-metric {
+  font-size: 11px;
+  color: var(--accent-mid);
+  font-style: italic;
+}
+
+/* ---- TABLE ---- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+.data-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-2);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td:first-child { font-weight: 500; color: var(--text); }
+
+/* ---- PROGRESS BAR ---- */
+.progress-wrap { margin-bottom: 20px; }
+.progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.progress-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+.progress-value {
+  font-size: 12px;
+  color: var(--muted);
+}
+.progress-track {
+  height: 6px;
+  background: var(--border-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.progress-fill-warm { background: var(--warm); }
+.progress-fill-gold { background: var(--gold); }
+
+/* ---- EVNMORE STATS ---- */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 700px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  text-align: center;
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ---- CINCO CARD ---- */
+.cinco-card {
+  background: var(--warm-bg);
+  border: 1px solid var(--warm-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.cinco-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--warm);
+  margin-bottom: 4px;
+}
+.cinco-sub {
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(176,82,54,0.12);
+}
+.checklist-item:last-child { border-bottom: none; }
+.checklist-cb {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--warm);
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-top: 2px;
+}
+.checklist-label {
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  line-height: 1.5;
+}
+.checklist-cb:checked + .checklist-label {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+/* ---- CONTENT CALENDAR ---- */
+.content-week {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.content-day {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+.content-day:last-child { border-bottom: none; }
+.content-day-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 72px;
+  flex-shrink: 0;
+}
+.content-day.today-row .content-day-label { color: var(--accent); }
+.content-day-text {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+/* ---- FINANCE ALERT ---- */
+.finance-alert {
+  background: var(--warm-bg);
+  border: 1px solid var(--warm-border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+.finance-alert.resolved {
+  background: var(--gold-bg);
+  border-color: #D4C080;
+}
+.finance-alert-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--warm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.finance-alert.resolved .finance-alert-title { color: var(--gold); }
+.finance-alert-body {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+.btn-warm {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--warm);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 7px 16px;
+  cursor: pointer;
+}
+.btn-warm:hover { background: #963F26; }
+
+/* ---- INCOME LOG ---- */
+.log-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.log-input {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  outline: none;
+  width: 120px;
+}
+.log-input:focus { border-color: var(--accent); }
+.log-select {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  outline: none;
+  cursor: pointer;
+}
+.btn-add {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid #BDD4BE;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.log-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 12px;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-amount { font-weight: 600; color: var(--text); }
+.log-cat { color: var(--muted); }
+.log-date { color: var(--subtle); margin-left: auto; }
+.log-empty { font-size: 12px; color: var(--muted); font-style: italic; padding: 8px 0; }
+
+/* ---- CONTENT LAB ---- */
+.coins-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) { .coins-grid { grid-template-columns: 1fr; } }
+
+.coin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.coin-ticker {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.coin-tagline {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.coin-body {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+.coin-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.window-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+}
+.badge-urgent { color: var(--warm); background: var(--warm-bg); border-color: var(--warm-border); }
+.badge-active { color: var(--accent-mid); background: var(--accent-light); border-color: #BDD4BE; }
+.badge-monitor { color: var(--gold); background: var(--gold-bg); border-color: #D4C080; }
+.chain-label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* ---- MEME CARDS ---- */
+.memes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) { .memes-grid { grid-template-columns: 1fr; } }
+
+.meme-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.meme-card.featured {
+  border-color: var(--accent);
+}
+.meme-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.meme-card.featured .meme-label { color: var(--accent); }
+.meme-context {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 10px;
+}
+.meme-quote {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  border-left: 3px solid var(--border);
+  padding-left: 12px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.meme-card.featured .meme-quote {
+  border-left-color: var(--accent);
+}
+.meme-direction {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.post-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+}
+
+/* ---- TREND TWO-COL ---- */
+.trend-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) { .trend-cols { grid-template-columns: 1fr; } }
+
+.trend-box {
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.trend-dying {
+  background: var(--warm-bg);
+  border: 1px solid var(--warm-border);
+}
+.trend-rising {
+  background: var(--accent-light);
+  border: 1px solid #BDD4BE;
+}
+.trend-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.trend-dying .trend-heading { color: var(--warm); }
+.trend-rising .trend-heading { color: var(--accent-mid); }
+.trend-item {
+  font-size: 12px;
+  color: var(--text-2);
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  line-height: 1.5;
+}
+.trend-item:last-child { border-bottom: none; }
+
+/* ---- SIGNAL TABLE ---- */
+.signal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.signal-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.signal-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-2);
+  vertical-align: middle;
+}
+.signal-table tr:last-child td { border-bottom: none; }
+.signal-table td:first-child { font-weight: 500; color: var(--text); }
+
+/* ---- UTILITY ---- */
+.mb-8  { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-28 { margin-bottom: 28px; }
+.mt-4  { margin-top: 4px; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.text-muted { color: var(--muted); font-size: 12px; }
+.divider { height: 1px; background: var(--border-light); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-date" id="topbar-date">Saturday, May 2, 2026</span>
+    <span class="topbar-divider">—</span>
+    <span class="topbar-title">Command Center &nbsp;&middot;&nbsp; Alaska Gedeon</span>
+  </div>
+  <div class="topbar-alert">
+    <span class="alert-dot"></span>
+    Taxes 17 Days Past Due
+  </div>
+</div>
+
+<!-- ============================================================ TABBAR -->
+<div class="tabbar">
+  <button class="tab-btn active" onclick="switchTab('today')">Today</button>
+  <button class="tab-btn" onclick="switchTab('calendar')">Calendar</button>
+  <button class="tab-btn" onclick="switchTab('reframe')">Reframe</button>
+  <button class="tab-btn" onclick="switchTab('evnmore')">EVNMORE</button>
+  <button class="tab-btn" onclick="switchTab('finance')">Finance</button>
+  <button class="tab-btn" onclick="switchTab('lab')">Content Lab</button>
+</div>
+
+<!-- ============================================================ CONTENT -->
+<div class="content-wrap">
+
+  <!-- ========== TAB: TODAY ========== -->
+  <div id="tab-today" class="tab-pane active">
+    <div class="two-col-layout">
+
+      <!-- LEFT: NARRATIVES -->
+      <div>
+        <div class="section-title mb-16">Today's Narratives</div>
+        <!-- NARRATIVES-START -->
+        <div class="narrative-card nc-red">
+          <div class="nc-eyebrow">
+            <span class="nc-num">01</span>
+            <span class="nc-tag">Iran &middot; Oil &middot; Geopolitics</span>
+          </div>
+          <div class="nc-title">The Blockade</div>
+          <div class="nc-body">Trump rejected Iran's peace deal. 48 ships turned around in 20 days. Iran hemorrhaging $500M/day. Oil at a 4-year high. The Strait of Hormuz handles roughly 20% of global oil — every American's wallet feels it right now.</div>
+          <div class="nc-footer">
+            <div class="nc-footer-item">Temp<span>Anxious + Angry</span></div>
+            <div class="nc-footer-item">Signal<span>5 / 5</span></div>
+          </div>
+        </div>
+
+        <div class="narrative-card nc-red">
+          <div class="nc-eyebrow">
+            <span class="nc-num">02</span>
+            <span class="nc-tag">Abortion &middot; SCOTUS &middot; Access</span>
+          </div>
+          <div class="nc-title">The Pill Is Political</div>
+          <div class="nc-body">5th Circuit blocked mifepristone mail delivery nationwide — including in states where abortion is legal. SCOTUS emergency appeal filed today. Roughly two-thirds of US abortions are medication-based. Your 18–40 WeHo audience is activated.</div>
+          <div class="nc-footer">
+            <div class="nc-footer-item">Temp<span>Furious + Galvanized</span></div>
+            <div class="nc-footer-item">Signal<span>5 / 5</span></div>
+          </div>
+        </div>
+
+        <div class="narrative-card nc-gold">
+          <div class="nc-eyebrow">
+            <span class="nc-num">03</span>
+            <span class="nc-tag">Inflation &middot; Class Rage &middot; Starbucks</span>
+          </div>
+          <div class="nc-title">$9 For A Coffee</div>
+          <div class="nc-body">Starbucks CEO making the case for $9 lattes on WSJ podcast, same day gas prices surge from the blockade. The contrast — $9 coffee, $5.50 gas, frozen wages — is perfectly toxic. The internet will eat this man alive all weekend.</div>
+          <div class="nc-footer">
+            <div class="nc-footer-item">Temp<span>Sarcastic + Class-Angry</span></div>
+            <div class="nc-footer-item">Signal<span>4 / 5</span></div>
+          </div>
+        </div>
+
+        <div class="narrative-card nc-muted">
+          <div class="nc-eyebrow">
+            <span class="nc-num">04</span>
+            <span class="nc-tag">Celebrity &middot; Hollywood &middot; Accountability</span>
+          </div>
+          <div class="nc-title">Jonah Hill Is Unraveling</div>
+          <div class="nc-body">Films bombed, Cut Off pulled from WB. Now selling "COMPLETE UNRELENTING CONTROL" merch — the exact phrase his ex used to describe his alleged abuse. The internet cannot process how cosmically tone-deaf this is.</div>
+          <div class="nc-footer">
+            <div class="nc-footer-item">Temp<span>Incredulous + Schadenfreude</span></div>
+            <div class="nc-footer-item">Signal<span>4 / 5</span></div>
+          </div>
+        </div>
+
+        <div class="narrative-card nc-green">
+          <div class="nc-eyebrow">
+            <span class="nc-num">05</span>
+            <span class="nc-tag">Crypto &middot; Meme Coins &middot; Midterms</span>
+          </div>
+          <div class="nc-title">PolitiFi Midterm Cycle Begins</div>
+          <div class="nc-body">SkyAI +290% in April, PENGU +53%. Solana meme coins are waking up. Midterms approaching — PolitiFi tokens are trading like political derivatives. Next 6 months are structurally bullish: every news cycle feeds the coins.</div>
+          <div class="nc-footer">
+            <div class="nc-footer-item">Temp<span>Speculative + Bullish</span></div>
+            <div class="nc-footer-item">Signal<span>4 / 5</span></div>
+          </div>
+        </div>
+        <!-- NARRATIVES-END -->
+      </div>
+
+      <!-- RIGHT: PRIORITIES + NEWS -->
+      <div>
+        <div class="section-title mb-16">Execute Today</div>
+        <!-- PRIORITIES-START -->
+        <div class="priority-item pi-red">
+          <div class="pi-title">Contact CPA about taxes</div>
+          <div class="pi-body">17 days past the 2024 deadline. 5 prior unfiled years. Even a voicemail stops the bleeding. Do it now.</div>
+        </div>
+
+        <div class="priority-item pi-red">
+          <div class="pi-title">Post mifepristone content</div>
+          <div class="pi-body">SCOTUS emergency is peak virality right now. 6-hour window. Your 18–40 WeHo audience is activated.</div>
+        </div>
+
+        <div class="priority-item pi-gold">
+          <div class="pi-title">Cinco de Mayo content</div>
+          <div class="pi-body">May 5 is T-3 days. Build the EVNMORE event post. Draft Patron outreach this weekend.</div>
+        </div>
+
+        <div class="priority-item pi-gold">
+          <div class="pi-title">Decide: $HORMUZ or $CONTROL</div>
+          <div class="pi-body">Hormuz: 2–4 week shelf life. Control: 48–72 hr window. Both are open right now.</div>
+        </div>
+
+        <div class="priority-item pi-green">
+          <div class="pi-title">Reframe LLC — file this week</div>
+          <div class="pi-body">California LLC online, $70 via SOS website. Goal: before May 10 so Q2 ops are legally clean.</div>
+        </div>
+
+        <div class="priority-item pi-green">
+          <div class="pi-title">One brand outreach email</div>
+          <div class="pi-body">Patron is the obvious first target given Cinco timing. One email. Today.</div>
+        </div>
+
+        <div class="news-list">
+          <div class="section-title">Quick News</div>
+          <div class="news-bullet"><span class="news-dot"></span><span>Trump rejected Iran peace offer — Hormuz standoff enters week 3</span></div>
+          <div class="news-bullet"><span class="news-dot"></span><span>SCOTUS emergency filing: mifepristone mail ban nationwide</span></div>
+          <div class="news-bullet"><span class="news-dot"></span><span>Starbucks CEO defends $9 latte on WSJ podcast as gas prices surge</span></div>
+          <div class="news-bullet"><span class="news-dot"></span><span>Jonah Hill "COMPLETE UNRELENTING CONTROL" merch goes viral</span></div>
+          <div class="news-bullet"><span class="news-dot"></span><span>SkyAI +290%, PENGU +53% — Solana meme cycle active</span></div>
+          <div class="news-bullet"><span class="news-dot"></span><span>Cinco de Mayo T-3: brand activations peaking for the weekend</span></div>
+          <div class="news-bullet"><span class="news-dot"></span><span>PSG vs. Bayern Champions League trending alongside Trump/Norah O'Donnell</span></div>
+        </div>
+        <!-- PRIORITIES-END -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB: CALENDAR ========== -->
+  <div id="tab-calendar" class="tab-pane">
+    <div class="cal-layout">
+
+      <!-- MAIN CALENDAR -->
+      <div>
+        <div class="cal-nav">
+          <div class="cal-month-label" id="cal-month-label">May 2026</div>
+          <button class="cal-today-btn" onclick="goToday()">Today</button>
+          <button class="cal-nav-btn" onclick="prevMonth()">&#8249;</button>
+          <button class="cal-nav-btn" onclick="nextMonth()">&#8250;</button>
+        </div>
+        <div class="cal-grid-header">
+          <div class="cal-dow">Sun</div>
+          <div class="cal-dow">Mon</div>
+          <div class="cal-dow">Tue</div>
+          <div class="cal-dow">Wed</div>
+          <div class="cal-dow">Thu</div>
+          <div class="cal-dow">Fri</div>
+          <div class="cal-dow">Sat</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="gcal-sidebar">
+        <!-- State 1: No credentials -->
+        <div id="gcal-setup" class="card" style="display:none;">
+          <div class="section-title mb-12">Connect Google Calendar</div>
+          <p class="text-muted mb-16">To see your real events, set up Google API credentials. This takes about 5 minutes.</p>
+
+          <div class="gcal-setup-step">
+            <div class="gcal-step-num">1</div>
+            <div class="gcal-step-body">
+              Go to <strong>console.cloud.google.com</strong> &rarr; Create or select a project &rarr; Enable the <strong>Google Calendar API</strong>
+            </div>
+          </div>
+          <div class="gcal-setup-step">
+            <div class="gcal-step-num">2</div>
+            <div class="gcal-step-body">
+              APIs &amp; Services &rarr; Credentials &rarr; Create <strong>OAuth 2.0 Client ID</strong> (Web application). Add to Authorized JavaScript Origins: <strong>https://daily-dashboard-deploy.vercel.app</strong>
+            </div>
+          </div>
+          <div class="gcal-setup-step">
+            <div class="gcal-step-num">3</div>
+            <div class="gcal-step-body">
+              Same Credentials page &rarr; Create an <strong>API Key</strong> and restrict it to the Calendar API.
+            </div>
+          </div>
+          <div class="gcal-setup-step">
+            <div class="gcal-step-num">4</div>
+            <div class="gcal-step-body">Paste both below and click Save &amp; Connect.</div>
+          </div>
+
+          <label class="text-muted" style="display:block; font-size:11px; font-weight:600; margin-bottom:4px; margin-top:4px;">OAuth Client ID</label>
+          <input class="gcal-input" id="setup-client-id" type="text" placeholder="paste your Client ID…">
+          <label class="text-muted" style="display:block; font-size:11px; font-weight:600; margin-bottom:4px; margin-top:10px;">API Key</label>
+          <input class="gcal-input" id="setup-api-key" type="text" placeholder="paste your API Key…">
+          <button class="btn-primary" onclick="saveCredentials()">Save &amp; Connect</button>
+        </div>
+
+        <!-- State 2: Has credentials, not signed in -->
+        <div id="gcal-connect" class="card" style="display:none;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <div class="gcal-g-logo">G</div>
+            <div>
+              <div style="font-size:14px; font-weight:600; color:var(--text);">Google Calendar</div>
+              <div class="text-muted">Sign in to see your events</div>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="connectGoogleCal()">Connect</button>
+          <div style="text-align:center; margin-top:10px;">
+            <button class="btn-link" onclick="resetCredentials()">Reset credentials</button>
+          </div>
+        </div>
+
+        <!-- State 3: Connected -->
+        <div id="gcal-connected" class="card" style="display:none;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <div class="connected-indicator">
+              <span class="connected-dot"></span>
+              Connected
+            </div>
+            <button class="btn-link" onclick="disconnectCal()">Disconnect</button>
+          </div>
+          <div class="section-title mb-8" id="gcal-day-label">Events for today</div>
+          <div id="gcal-events-list">
+            <div class="log-empty">Loading events...</div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="gcal-loading" class="card" style="display:none;">
+          <div class="log-empty">Connecting to Google Calendar...</div>
+        </div>
+
+        <!-- Error state -->
+        <div id="gcal-error" class="card" style="display:none;">
+          <div style="color:var(--warm); font-size:12px; font-weight:600; margin-bottom:6px;">Connection Error</div>
+          <div id="gcal-error-msg" class="text-muted" style="margin-bottom:12px;">Could not connect to Google Calendar.</div>
+          <button class="btn-link" onclick="resetCredentials()">Reset credentials</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB: REFRAME ========== -->
+  <div id="tab-reframe" class="tab-pane">
+
+    <div class="reframe-header">
+      <div class="reframe-name">Reframe</div>
+      <div class="reframe-tagline">Conscious Play &nbsp;&middot;&nbsp; Executive Coaching &nbsp;&middot;&nbsp; Talent Development</div>
+      <div class="reframe-meta">Alaska Gedeon &times; Camille &nbsp;&nbsp;|&nbsp;&nbsp; <span class="stat-pill pill-green">Active — Q2 2026</span></div>
+    </div>
+
+    <div class="section-title mb-16">Three Pillars</div>
+    <div class="pillars-grid mb-28">
+      <div class="pillar-card">
+        <div class="stat-pill pill-gold mb-8">Planning</div>
+        <div class="pillar-title">Conscious Play</div>
+        <div class="pillar-desc">Festival and events production. Experiences that bridge music, culture, and creative community in Los Angeles.</div>
+        <div class="pillar-current">Current task: <strong>Lock venue + date for Show 1</strong></div>
+        <div class="pillar-metric mt-4">EVNMORE Sundays — 600+ weekly guests, 10M+ IG reach</div>
+      </div>
+      <div class="pillar-card">
+        <div class="stat-pill pill-muted mb-8">Development</div>
+        <div class="pillar-title">Executive Coaching</div>
+        <div class="pillar-desc">1:1 coaching for creative executives and founders navigating the music and entertainment industries.</div>
+        <div class="pillar-current">Current task: <strong>Build coaching framework + pricing</strong></div>
+        <div class="pillar-metric mt-4">Target: 3 retainer clients at $2,000/month</div>
+      </div>
+      <div class="pillar-card">
+        <div class="stat-pill pill-green mb-8">Active</div>
+        <div class="pillar-title">2Sags Productions</div>
+        <div class="pillar-desc">Music production and talent development company. A&amp;R + production + marketing pipeline for emerging artists.</div>
+        <div class="pillar-current">Current task: <strong>A&amp;R pipeline with Erv Ward</strong></div>
+        <div class="pillar-metric mt-4">Ervin "Erv" Ward co-producer — Britney Spears "Womanizer"</div>
+      </div>
+    </div>
+
+    <div class="section-title mb-12">Brand Activation Pipeline</div>
+    <div class="card mb-28" style="padding: 0; overflow:hidden;">
+      <table class="data-table" style="margin-bottom:0;">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Next Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Patron</td>
+            <td style="color:var(--muted);">Spirits</td>
+            <td><span class="stat-pill pill-warm">Active Target</span></td>
+            <td>Send Cinco de Mayo pitch this weekend</td>
+          </tr>
+          <tr>
+            <td>Mala Mia</td>
+            <td style="color:var(--muted);">Food / Beverage</td>
+            <td><span class="stat-pill pill-warm">Active Target</span></td>
+            <td>Draft intro deck</td>
+          </tr>
+          <tr>
+            <td>Netflix</td>
+            <td style="color:var(--muted);">Streaming</td>
+            <td><span class="stat-pill pill-warm">Active Target</span></td>
+            <td>Find right contact via LinkedIn</td>
+          </tr>
+          <tr>
+            <td>Hulu</td>
+            <td style="color:var(--muted);">Streaming</td>
+            <td><span class="stat-pill pill-warm">Active Target</span></td>
+            <td>Bundle with Netflix outreach</td>
+          </tr>
+          <tr>
+            <td>WBR</td>
+            <td style="color:var(--muted);">Music</td>
+            <td><span class="stat-pill pill-warm">Active Target</span></td>
+            <td>Leverage 2Sags connection</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title mb-16">Q2 Goals</div>
+    <div class="card">
+      <div class="progress-wrap">
+        <div class="progress-label-row">
+          <span class="progress-label">Monthly Revenue</span>
+          <span class="progress-value">$0 / $10,000 target</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label-row">
+          <span class="progress-label">Brand Partners Signed</span>
+          <span class="progress-value">0 / 3</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap" style="margin-bottom:0;">
+        <div class="progress-label-row">
+          <span class="progress-label">LLC Filed</span>
+          <span class="progress-value"><span class="stat-pill pill-gold">In Progress</span></span>
+        </div>
+        <div class="progress-track"><div class="progress-fill progress-fill-gold" style="width:20%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB: EVNMORE ========== -->
+  <div id="tab-evnmore" class="tab-pane">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number">600+</div>
+        <div class="stat-label">Weekly Guests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">10M+</div>
+        <div class="stat-label">IG Reach</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="cinco-countdown">T&ndash;3</div>
+        <div class="stat-label">Days to Cinco</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">#1</div>
+        <div class="stat-label">WeHo Sunday</div>
+      </div>
+    </div>
+
+    <div class="cinco-card">
+      <div class="cinco-title">Cinco de Mayo — Sunday, May 5</div>
+      <div class="cinco-sub">Your biggest brand activation moment of Q2. 600+ guests. Patron is watching. The content window is open right now.</div>
+
+      <div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-1" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-1">Design EVNMORE Cinco poster (use Meme 09 brief)</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-2" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-2">Draft Patron activation pitch</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-3" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-3">Coordinate with Andy's on any special setup</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-4" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-4">Post teaser story (2 days out)</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-5" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-5">Post event post (day of)</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-6" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-6">Behind-the-scenes content during event</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" class="checklist-cb" id="cl-7" onchange="saveChecklist()">
+          <label class="checklist-label" for="cl-7">Recap reel within 48 hours</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title mb-12">Content Calendar — Week of May 1–8</div>
+    <div class="content-week mb-20">
+      <div class="content-day today-row">
+        <div class="content-day-label">Sat May 2</div>
+        <div class="content-day-text">Mifepristone awareness post (Meme 04 concept) — peak virality window now</div>
+      </div>
+      <div class="content-day">
+        <div class="content-day-label">Sun May 3</div>
+        <div class="content-day-text">EVNMORE "see you tomorrow" tease + Cinco countdown begins</div>
+      </div>
+      <div class="content-day">
+        <div class="content-day-label">Mon May 4</div>
+        <div class="content-day-text">Cinco countdown content — anticipation build</div>
+      </div>
+      <div class="content-day">
+        <div class="content-day-label">Tue May 5</div>
+        <div class="content-day-text">EVNMORE Cinco event post + Stories throughout the night</div>
+      </div>
+      <div class="content-day">
+        <div class="content-day-label">Wed May 6</div>
+        <div class="content-day-text">Event recap reel — highlights from the night</div>
+      </div>
+      <div class="content-day">
+        <div class="content-day-label">Thu May 7</div>
+        <div class="content-day-text">Behind-the-scenes content and community moments</div>
+      </div>
+      <div class="content-day">
+        <div class="content-day-label">Fri May 8</div>
+        <div class="content-day-text">Weekly culture/trend post — set up next Sunday momentum</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title mb-12">Posting Specs</div>
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:16px;">
+        <div>
+          <div style="font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;">Platforms</div>
+          <div class="text-muted">IG Feed</div>
+          <div class="text-muted">IG Stories</div>
+          <div class="text-muted">TikTok</div>
+        </div>
+        <div>
+          <div style="font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;">Best Times</div>
+          <div class="text-muted">6–9 PM PST</div>
+          <div class="text-muted">Friday–Sunday peak</div>
+        </div>
+        <div>
+          <div style="font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;">Engagement Rule</div>
+          <div class="text-muted">Reply to comments within 2 hrs of posting for algorithmic boost</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB: FINANCE ========== -->
+  <div id="tab-finance" class="tab-pane">
+
+    <div class="finance-alert" id="tax-alert">
+      <div class="finance-alert-title">Taxes — Action Required</div>
+      <div class="finance-alert-body">
+        2024 return was due April 15, 2026. It is now May 2 — <strong>17 days past deadline</strong>. Unfiled years: 2019 &middot; 2020 &middot; 2021 &middot; 2022 &middot; 2023 &middot; 2024. Penalty and interest accruing daily. Contact your CPA today — even leaving a message starts the clock.
+      </div>
+      <button class="btn-warm" onclick="markTaxContacted()">Mark as Contacted</button>
+    </div>
+
+    <div class="card mb-20">
+      <div class="section-title mb-12">Q2 Revenue Goal — May through June 2026</div>
+      <div style="font-size:28px; font-weight:700; color:var(--text); letter-spacing:-1px; margin-bottom:4px;" id="finance-total-display">$0</div>
+      <div class="text-muted mb-12">logged toward $10,000 / month goal</div>
+      <div class="progress-track" style="height:8px;">
+        <div class="progress-fill" id="finance-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="text-muted mt-8" id="finance-progress-pct">0% of monthly goal</div>
+    </div>
+
+    <div class="section-title mb-12">Revenue Streams</div>
+    <div class="card mb-20" style="padding:0; overflow:hidden;">
+      <table class="data-table" style="margin-bottom:0;">
+        <thead>
+          <tr>
+            <th>Stream</th>
+            <th>Monthly Target</th>
+            <th>Status</th>
+            <th>Next Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Creator retainers</td>
+            <td style="color:var(--muted);">$4,000 / mo</td>
+            <td><span class="stat-pill pill-muted">0 signed</span></td>
+            <td>Outreach</td>
+          </tr>
+          <tr>
+            <td>Brand activations</td>
+            <td style="color:var(--muted);">$4,000 / mo</td>
+            <td><span class="stat-pill pill-muted">0 signed</span></td>
+            <td>Cinco de Mayo pitch</td>
+          </tr>
+          <tr>
+            <td>Coaching / consulting</td>
+            <td style="color:var(--muted);">$2,000 / mo</td>
+            <td><span class="stat-pill pill-muted">0 signed</span></td>
+            <td>Package offering</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title mb-12">Financial Deadlines</div>
+    <div class="card mb-20" style="padding:0; overflow:hidden;">
+      <table class="data-table" style="margin-bottom:0;">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Notes</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Taxes 2024</td>
+            <td style="color:var(--muted);">Was due April 15, 2026</td>
+            <td><span class="stat-pill pill-warm">Overdue</span></td>
+          </tr>
+          <tr>
+            <td>Taxes 2019–2023</td>
+            <td style="color:var(--muted);">Negotiate timeline with CPA</td>
+            <td><span class="stat-pill pill-gold">In Progress</span></td>
+          </tr>
+          <tr>
+            <td>Reframe LLC filing fee</td>
+            <td style="color:var(--muted);">$70 one-time, CA SOS website</td>
+            <td><span class="stat-pill pill-warm">Due this week</span></td>
+          </tr>
+          <tr>
+            <td>Q2 Revenue Check-in</td>
+            <td style="color:var(--muted);">June 30, 2026</td>
+            <td><span class="stat-pill pill-green">Upcoming</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title mb-12">Quick Income Log</div>
+    <div class="card">
+      <div class="log-form">
+        <input type="number" class="log-input" id="log-amount" placeholder="$ amount" min="0">
+        <select class="log-select" id="log-category">
+          <option value="Retainer">Retainer</option>
+          <option value="Brand">Brand</option>
+          <option value="Coaching">Coaching</option>
+          <option value="Other">Other</option>
+        </select>
+        <button class="btn-add" onclick="addLogEntry()">Add</button>
+      </div>
+      <div id="log-entries">
+        <div class="log-empty" id="log-empty-state">No income logged yet. Add your first entry above.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB: CONTENT LAB ========== -->
+  <div id="tab-lab" class="tab-pane">
+
+    <div class="section-title mb-16">Active Meme Coin Concepts</div>
+    <div class="coins-grid">
+      <div class="coin-card">
+        <div class="coin-ticker">$HORMUZ</div>
+        <div class="coin-tagline">"One chokepoint. Infinite leverage."</div>
+        <div class="coin-body">One physical bottleneck controls 20% of world oil. Every price spike = free marketing. Every headline feeds the narrative. 2–4 week shelf life while negotiations continue.</div>
+        <div class="coin-footer">
+          <span class="window-badge badge-urgent">Launch Now</span>
+          <span class="chain-label">Solana</span>
+        </div>
+      </div>
+
+      <div class="coin-card">
+        <div class="coin-ticker">$CONTROL</div>
+        <div class="coin-tagline">"Complete. Unrelenting. Control."</div>
+        <div class="coin-body">Jonah Hill selling merch bearing the exact phrase his ex used to describe his alleged abuse. Cosmically tone-deaf. Universal meme: therapy-speak weaponized. Every headline = catalyst.</div>
+        <div class="coin-footer">
+          <span class="window-badge badge-urgent">Act Now — 48–72 hrs</span>
+          <span class="chain-label">Solana</span>
+        </div>
+      </div>
+
+      <div class="coin-card">
+        <div class="coin-ticker">$NINEDOLLAR</div>
+        <div class="coin-tagline">"i can't afford rent but i need this latte."</div>
+        <div class="coin-body">$9 Starbucks in a gas crisis = perfect class-rage meme. Nihilist luxury for the broke-but-bougie. "This is fine" dog energy with a debit card. Every price hike is a pump event.</div>
+        <div class="coin-footer">
+          <span class="window-badge badge-active">Ongoing</span>
+          <span class="chain-label">Solana</span>
+        </div>
+      </div>
+
+      <div class="coin-card">
+        <div class="coin-ticker">$SKYAI</div>
+        <div class="coin-tagline">Already live. Already +290% in April.</div>
+        <div class="coin-body">AI-meme fusion narrative leader on Solana. AI agents that generate their own hype 24/7. The meme that makes itself. If entering meme coin space, this is the horse already running.</div>
+        <div class="coin-footer">
+          <span class="window-badge badge-monitor">Monitor</span>
+          <span class="chain-label">Solana</span>
+        </div>
+      </div>
+
+      <div class="coin-card">
+        <div class="coin-ticker">$PILLMAIL</div>
+        <div class="coin-tagline">"Same country. Same pill. Different zip code."</div>
+        <div class="coin-body">Mifepristone ban is the most emotionally charged story today. The specific detail — you can't mail the pill — is hauntingly concrete. Highest conviction. SCOTUS decisions = catalysts.</div>
+        <div class="coin-footer">
+          <span class="window-badge badge-urgent">High Conviction</span>
+          <span class="chain-label">Solana</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title mb-16">Today's Meme Pack — Top 3</div>
+    <div class="memes-grid mb-28">
+      <div class="meme-card">
+        <div class="meme-label">Meme 01</div>
+        <div class="meme-context">Hormuz / Oil / Gas Prices</div>
+        <div class="meme-quote">"The Strait of Hormuz is closed."<br><br>(next panel)<br><br>"So anyway here's why your iced coffee now costs $9."</div>
+        <div class="meme-direction">Two-panel split. Panel 1: naval warship at sunrise. Panel 2: Starbucks receipt, total visible. Military stencil top / receipt font bottom.</div>
+      </div>
+
+      <div class="meme-card">
+        <div class="meme-label">Meme 02</div>
+        <div class="meme-context">Jonah Hill / Therapy-Speak Villain</div>
+        <div class="meme-quote">"I need you to respect that my boundary is controlling every aspect of your existence."<br><br>— Available on merch now, apparently.</div>
+        <div class="meme-direction">Wellness app aesthetic. Soft sage green background. Serif font. Instagram story format. Let the deadpan carry it.</div>
+      </div>
+
+      <div class="meme-card featured">
+        <div class="meme-label">Meme 09 — EVNMORE Asset</div>
+        <div class="meme-context">Cinco de Mayo / EVNMORE Sundays</div>
+        <div class="meme-quote">Cinco de Mayo means different things to different people.<br><br>For us it means:<br>600 people. One room. Sunday.</div>
+        <div class="meme-direction">Event poster format. Terracotta + gold palette. Clean modern type. EVNMORE branding. This doubles as real deployable content.</div>
+        <div class="post-badge">Post This</div>
+      </div>
+    </div>
+
+    <div class="section-title mb-12">Trend Signals</div>
+    <div class="trend-cols">
+      <div class="trend-box trend-dying">
+        <div class="trend-heading">Dying</div>
+        <div class="trend-item">Bitcoin ETF hype — stale, lost momentum</div>
+        <div class="trend-item">Generic AI crypto — no narrative specificity</div>
+        <div class="trend-item">Celebrity apology culture — no one believes it</div>
+        <div class="trend-item">Polished event marketing without a hook</div>
+      </div>
+      <div class="trend-box trend-rising">
+        <div class="trend-heading">Rising</div>
+        <div class="trend-item">Oil / energy as daily emotional trigger</div>
+        <div class="trend-item">Medication access galvanizing 18–40 women</div>
+        <div class="trend-item">Surrealist brand voice beating polished corporate</div>
+        <div class="trend-item">Cinco de Mayo as culturally-weighted brand moment</div>
+      </div>
+    </div>
+
+    <div class="section-title mb-12">Narrative Signal Strength</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="signal-table">
+        <thead>
+          <tr>
+            <th>Narrative</th>
+            <th>Sentiment</th>
+            <th>Window</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>The Blockade</td>
+            <td>Anxious-Bullish</td>
+            <td>2–4 weeks</td>
+            <td>Launch $HORMUZ</td>
+          </tr>
+          <tr>
+            <td>Mifepristone</td>
+            <td>Furious-Galvanized</td>
+            <td>Days</td>
+            <td>Post NOW + $PILLMAIL</td>
+          </tr>
+          <tr>
+            <td>$9 Coffee</td>
+            <td>Sarcastic-Angry</td>
+            <td>Weekend</td>
+            <td>Meme 01 / Meme 07</td>
+          </tr>
+          <tr>
+            <td>Jonah Hill</td>
+            <td>Incredulous</td>
+            <td>48–72 hrs</td>
+            <td>$CONTROL + Meme 02</td>
+          </tr>
+          <tr>
+            <td>PolitiFi Cycle</td>
+            <td>Bullish</td>
+            <td>6 months</td>
+            <td>Hold $SKYAI position</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /.content-wrap -->
+
+<!-- ============================================================ SCRIPTS -->
+<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
+<script>
+/* ============================================================
+   TAB SWITCHING
+   ============================================================ */
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  var pane = document.getElementById('tab-' + name);
+  if (pane) pane.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  var nameMap = { today: 0, calendar: 1, reframe: 2, evnmore: 3, finance: 4, lab: 5 };
+  if (nameMap[name] !== undefined && btns[nameMap[name]]) {
+    btns[nameMap[name]].classList.add('active');
+  }
+  if (name === 'calendar') renderCalendar();
+}
+
+/* ============================================================
+   DATE DISPLAY
+   ============================================================ */
+(function() {
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var now = new Date();
+  var dateStr = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+  var el = document.getElementById('topbar-date');
+  if (el) el.textContent = dateStr;
+})();
+
+/* ============================================================
+   CINCO COUNTDOWN
+   ============================================================ */
+(function() {
+  var now = new Date();
+  var cinco = new Date(now.getFullYear(), 4, 5); // May 5
+  if (now > cinco) cinco.setFullYear(cinco.getFullYear() + 1);
+  var diff = Math.ceil((cinco - now) / (1000 * 60 * 60 * 24));
+  var el = document.getElementById('cinco-countdown');
+  if (el) {
+    if (diff === 0) el.textContent = 'TODAY';
+    else if (diff < 0) el.textContent = 'DONE';
+    else el.innerHTML = 'T&ndash;' + diff;
+  }
+})();
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+var selectedDate = new Date();
+var calEvents = [];
+
+var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderCalendar() {
+  var label = document.getElementById('cal-month-label');
+  if (label) label.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+
+  var grid = document.getElementById('cal-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  var today = new Date();
+  var firstDay = new Date(calYear, calMonth, 1);
+  var lastDay = new Date(calYear, calMonth + 1, 0);
+
+  var startDow = firstDay.getDay(); // 0=Sun
+  var totalDays = lastDay.getDate();
+
+  // Fill leading empties
+  for (var i = 0; i < startDow; i++) {
+    var prevDate = new Date(calYear, calMonth, -startDow + i + 1);
+    grid.appendChild(makeCell(prevDate, true));
+  }
+
+  // Current month
+  for (var d = 1; d <= totalDays; d++) {
+    var date = new Date(calYear, calMonth, d);
+    grid.appendChild(makeCell(date, false));
+  }
+
+  // Fill trailing
+  var totalCells = startDow + totalDays;
+  var remainder = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (var j = 0; j < remainder; j++) {
+    var nextDate = new Date(calYear, calMonth + 1, j + 1);
+    grid.appendChild(makeCell(nextDate, true));
+  }
+}
+
+function makeCell(date, otherMonth) {
+  var today = new Date();
+  var cell = document.createElement('div');
+  cell.className = 'cal-cell';
+  if (otherMonth) cell.classList.add('other-month');
+  if (isSameDay(date, today)) cell.classList.add('today');
+  if (isSameDay(date, selectedDate)) cell.classList.add('selected');
+
+  var num = document.createElement('div');
+  num.className = 'cal-day-num';
+  num.textContent = date.getDate();
+  cell.appendChild(num);
+
+  // Add event pills
+  var dayEvents = getEventsForDay(date);
+  dayEvents.slice(0, 3).forEach(function(ev) {
+    var pill = document.createElement('span');
+    pill.className = 'cal-event-pill';
+    pill.textContent = ev.summary || ev.title || 'Event';
+    cell.appendChild(pill);
+  });
+
+  cell.addEventListener('click', function() {
+    selectedDate = new Date(date);
+    renderCalendar();
+    renderEventList();
+  });
+
+  return cell;
+}
+
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
+}
+
+function getEventsForDay(date) {
+  return calEvents.filter(function(ev) {
+    var start = ev.start && (ev.start.dateTime || ev.start.date);
+    if (!start) return false;
+    var d = new Date(start);
+    return isSameDay(d, date);
+  });
+}
+
+function renderEventList() {
+  var list = document.getElementById('gcal-events-list');
+  if (!list) return;
+  var dayLabel = document.getElementById('gcal-day-label');
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if (dayLabel) {
+    if (isSameDay(selectedDate, new Date())) {
+      dayLabel.textContent = 'Events for today';
+    } else {
+      dayLabel.textContent = 'Events for ' + months[selectedDate.getMonth()] + ' ' + selectedDate.getDate();
+    }
+  }
+
+  var dayEvents = getEventsForDay(selectedDate);
+  if (dayEvents.length === 0) {
+    list.innerHTML = '<div class="log-empty">No events for this day.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  dayEvents.forEach(function(ev) {
+    var item = document.createElement('div');
+    item.className = 'gcal-event-item';
+
+    var bar = document.createElement('div');
+    bar.className = 'gcal-event-bar';
+    if (ev.colorId) bar.style.background = gcalColor(ev.colorId);
+    item.appendChild(bar);
+
+    var info = document.createElement('div');
+    var title = document.createElement('div');
+    title.className = 'gcal-event-title';
+    title.textContent = ev.summary || '(No title)';
+    info.appendChild(title);
+
+    var time = document.createElement('div');
+    time.className = 'gcal-event-time';
+    if (ev.start && ev.start.dateTime) {
+      var s = new Date(ev.start.dateTime);
+      var e = ev.end && ev.end.dateTime ? new Date(ev.end.dateTime) : null;
+      time.textContent = formatTime(s) + (e ? ' – ' + formatTime(e) : '');
+    } else {
+      time.textContent = 'All day';
+    }
+    info.appendChild(time);
+    item.appendChild(info);
+    list.appendChild(item);
+  });
+}
+
+function formatTime(d) {
+  var h = d.getHours(), m = d.getMinutes();
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+}
+
+function gcalColor(id) {
+  var colors = {
+    '1':'#7986cb','2':'#33b679','3':'#8e24aa','4':'#e67c73',
+    '5':'#f6c026','6':'#f5511d','7':'#039be5','8':'#616161',
+    '9':'#3f51b5','10':'#0b8043','11':'#d60000'
+  };
+  return colors[id] || '#2C3E2D';
+}
+
+function prevMonth() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+  if (calConnected) fetchEventsForMonth();
+}
+
+function nextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+  if (calConnected) fetchEventsForMonth();
+}
+
+function goToday() {
+  var now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  selectedDate = now;
+  renderCalendar();
+  renderEventList();
+}
+
+// Initial render on load
+renderCalendar();
+
+/* ============================================================
+   GOOGLE CALENDAR OAuth
+   ============================================================ */
+var gapiInited = false;
+var gisInited = false;
+var tokenClient = null;
+var calConnected = false;
+
+function getCalCredentials() {
+  return {
+    clientId: localStorage.getItem('GCAL_CLIENT_ID') || '',
+    apiKey: localStorage.getItem('GCAL_API_KEY') || ''
+  };
+}
+
+function hasCredentials() {
+  var c = getCalCredentials();
+  return c.clientId && c.apiKey;
+}
+
+function getStoredToken() {
+  try { return JSON.parse(sessionStorage.getItem('GCAL_TOKEN') || 'null'); } catch(e) { return null; }
+}
+
+function setStoredToken(t) {
+  sessionStorage.setItem('GCAL_TOKEN', JSON.stringify(t));
+}
+
+function clearStoredToken() {
+  sessionStorage.removeItem('GCAL_TOKEN');
+}
+
+function updateCalUI() {
+  var setup     = document.getElementById('gcal-setup');
+  var connect   = document.getElementById('gcal-connect');
+  var connected = document.getElementById('gcal-connected');
+  var loading   = document.getElementById('gcal-loading');
+  var error     = document.getElementById('gcal-error');
+  [setup, connect, connected, loading, error].forEach(function(el) { if (el) el.style.display = 'none'; });
+
+  if (!hasCredentials()) {
+    if (setup) setup.style.display = 'block';
+  } else if (!calConnected) {
+    if (connect) connect.style.display = 'block';
+  } else {
+    if (connected) connected.style.display = 'block';
+    renderEventList();
+  }
+}
+
+function gapiLoaded() {
+  gapi.load('client', function() {
+    var creds = getCalCredentials();
+    if (!creds.apiKey) { gapiInited = true; maybeReady(); return; }
+    gapi.client.init({
+      apiKey: creds.apiKey,
+      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']
+    }).then(function() {
+      gapiInited = true;
+      maybeReady();
+    }).catch(function(e) {
+      gapiInited = true;
+      maybeReady();
+    });
+  });
+}
+
+function gisLoaded() {
+  var creds = getCalCredentials();
+  if (!creds.clientId) { gisInited = true; maybeReady(); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: creds.clientId,
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    callback: handleTokenResponse
+  });
+  gisInited = true;
+  maybeReady();
+}
+
+function maybeReady() {
+  if (!gapiInited || !gisInited) return;
+  if (!hasCredentials()) { updateCalUI(); return; }
+  var token = getStoredToken();
+  if (token) {
+    gapi.client.setToken(token);
+    calConnected = true;
+    updateCalUI();
+    fetchEventsForMonth();
+  } else {
+    updateCalUI();
+  }
+}
+
+function saveCredentials() {
+  var clientId = document.getElementById('setup-client-id').value.trim();
+  var apiKey   = document.getElementById('setup-api-key').value.trim();
+  if (!clientId || !apiKey) { alert('Please enter both Client ID and API Key.'); return; }
+  localStorage.setItem('GCAL_CLIENT_ID', clientId);
+  localStorage.setItem('GCAL_API_KEY', apiKey);
+  // Re-init
+  showGcalLoading();
+  gapiInited = false;
+  gisInited = false;
+  gapiLoaded();
+  gisLoaded();
+}
+
+function showGcalLoading() {
+  var els = ['gcal-setup','gcal-connect','gcal-connected','gcal-error'];
+  els.forEach(function(id) { var el=document.getElementById(id); if(el) el.style.display='none'; });
+  var l = document.getElementById('gcal-loading');
+  if (l) l.style.display = 'block';
+}
+
+function connectGoogleCal() {
+  if (!tokenClient) { alert('Google Identity Services not loaded yet. Please wait.'); return; }
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+function handleTokenResponse(resp) {
+  if (resp.error) {
+    showCalError('Authorization failed: ' + resp.error);
+    return;
+  }
+  setStoredToken({ access_token: resp.access_token, token_type: resp.token_type });
+  calConnected = true;
+  updateCalUI();
+  fetchEventsForMonth();
+}
+
+function fetchEventsForMonth() {
+  var firstOfMonth = new Date(calYear, calMonth, 1);
+  var lastOfMonth  = new Date(calYear, calMonth + 1, 0, 23, 59, 59);
+
+  gapi.client.calendar.events.list({
+    calendarId: 'primary',
+    timeMin: firstOfMonth.toISOString(),
+    timeMax: lastOfMonth.toISOString(),
+    singleEvents: true,
+    orderBy: 'startTime',
+    maxResults: 250
+  }).then(function(resp) {
+    calEvents = resp.result.items || [];
+    renderCalendar();
+    renderEventList();
+  }).catch(function(err) {
+    if (err.status === 401) {
+      clearStoredToken();
+      calConnected = false;
+      gapi.client.setToken(null);
+      updateCalUI();
+    } else {
+      showCalError('Failed to load events: ' + (err.result && err.result.error && err.result.error.message || err.status));
+    }
+  });
+}
+
+function fetchEvents() {
+  fetchEventsForMonth();
+}
+
+function showCalError(msg) {
+  var els = ['gcal-setup','gcal-connect','gcal-connected','gcal-loading'];
+  els.forEach(function(id) { var el=document.getElementById(id); if(el) el.style.display='none'; });
+  var e = document.getElementById('gcal-error');
+  var m = document.getElementById('gcal-error-msg');
+  if (e) e.style.display = 'block';
+  if (m) m.textContent = msg;
+}
+
+function resetCredentials() {
+  localStorage.removeItem('GCAL_CLIENT_ID');
+  localStorage.removeItem('GCAL_API_KEY');
+  clearStoredToken();
+  calConnected = false;
+  calEvents = [];
+  gapiInited = false;
+  gisInited = false;
+  tokenClient = null;
+  renderCalendar();
+  updateCalUI();
+}
+
+function disconnectCal() {
+  clearStoredToken();
+  calConnected = false;
+  calEvents = [];
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+    var creds = getCalCredentials();
+    google.accounts.oauth2.revoke(gapi.client.getToken() && gapi.client.getToken().access_token, function() {});
+  }
+  gapi.client.setToken(null);
+  renderCalendar();
+  updateCalUI();
+}
+
+// Show correct initial state
+updateCalUI();
+
+/* ============================================================
+   FINANCE LOGGER
+   ============================================================ */
+var GOAL = 10000;
+
+function getLogEntries() {
+  try { return JSON.parse(localStorage.getItem('INCOME_LOG') || '[]'); } catch(e) { return []; }
+}
+
+function saveLogEntries(entries) {
+  localStorage.setItem('INCOME_LOG', JSON.stringify(entries));
+}
+
+function addLogEntry() {
+  var amount = parseFloat(document.getElementById('log-amount').value);
+  var category = document.getElementById('log-category').value;
+  if (!amount || amount <= 0) { alert('Please enter a valid amount.'); return; }
+
+  var entries = getLogEntries();
+  entries.unshift({
+    amount: amount,
+    category: category,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  });
+  saveLogEntries(entries);
+  document.getElementById('log-amount').value = '';
+  renderLogEntries();
+}
+
+function renderLogEntries() {
+  var entries = getLogEntries();
+  var total = entries.reduce(function(sum, e) { return sum + e.amount; }, 0);
+  var pct = Math.min(100, Math.round((total / GOAL) * 100));
+
+  var fill = document.getElementById('finance-progress-fill');
+  var totalDisp = document.getElementById('finance-total-display');
+  var pctDisp = document.getElementById('finance-progress-pct');
+  if (fill) fill.style.width = pct + '%';
+  if (totalDisp) totalDisp.textContent = '$' + total.toLocaleString();
+  if (pctDisp) pctDisp.textContent = pct + '% of monthly goal';
+
+  var container = document.getElementById('log-entries');
+  var emptyState = document.getElementById('log-empty-state');
+  if (!container) return;
+
+  // Remove old entries (not empty state)
+  Array.from(container.children).forEach(function(child) {
+    if (child.id !== 'log-empty-state') container.removeChild(child);
+  });
+
+  if (entries.length === 0) {
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+  if (emptyState) emptyState.style.display = 'none';
+
+  entries.forEach(function(e) {
+    var item = document.createElement('div');
+    item.className = 'log-entry';
+    item.innerHTML = '<span class="log-amount">$' + e.amount.toLocaleString() + '</span>' +
+                     '<span class="log-cat">' + e.category + '</span>' +
+                     '<span class="log-date">' + e.date + '</span>';
+    container.appendChild(item);
+  });
+}
+
+renderLogEntries();
+
+/* ============================================================
+   TAX ALERT
+   ============================================================ */
+(function() {
+  var contacted = localStorage.getItem('TAX_CONTACTED');
+  if (contacted) {
+    var alert = document.getElementById('tax-alert');
+    if (alert) {
+      alert.classList.add('resolved');
+      alert.querySelector('.finance-alert-title').textContent = 'Taxes — CPA Contacted';
+      alert.querySelector('.finance-alert-body').textContent = 'You have marked this as contacted. Follow up if you have not heard back within 48 hours.';
+      var btn = alert.querySelector('.btn-warm');
+      if (btn) btn.style.display = 'none';
+    }
+  }
+})();
+
+function markTaxContacted() {
+  localStorage.setItem('TAX_CONTACTED', '1');
+  var alert = document.getElementById('tax-alert');
+  if (alert) {
+    alert.classList.add('resolved');
+    alert.querySelector('.finance-alert-title').textContent = 'Taxes — CPA Contacted';
+    alert.querySelector('.finance-alert-body').textContent = 'You have marked this as contacted. Follow up if you have not heard back within 48 hours.';
+    var btn = alert.querySelector('.btn-warm');
+    if (btn) btn.style.display = 'none';
+  }
+}
+
+/* ============================================================
+   EVNMORE CHECKLIST PERSISTENCE
+   ============================================================ */
+function saveChecklist() {
+  var state = {};
+  for (var i = 1; i <= 7; i++) {
+    var cb = document.getElementById('cl-' + i);
+    if (cb) state['cl-' + i] = cb.checked;
+  }
+  localStorage.setItem('CINCO_CHECKLIST', JSON.stringify(state));
+}
+
+function loadChecklist() {
+  try {
+    var state = JSON.parse(localStorage.getItem('CINCO_CHECKLIST') || '{}');
+    for (var key in state) {
+      var cb = document.getElementById(key);
+      if (cb) cb.checked = state[key];
+    }
+  } catch(e) {}
+}
+
+loadChecklist();
+</script>
+
+</body>
+</html>
