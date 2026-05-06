@@ -14,6 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install certifi
+        run: pip3 install certifi
+
       - name: Fetch news and update dashboard
         run: python3 update_dashboard.py
 
@@ -24,3 +27,9 @@ jobs:
           git add index.html
           git diff --staged --quiet || git commit -m "Daily update $(date -u '+%Y-%m-%d')"
           git push
+
+      - name: Deploy to Vercel
+        run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: team_ikZ4KVtrThFLQHt8U27UjG5s
+          VERCEL_PROJECT_ID: prj_ZWb8ep6AhDVvjHXPcA5JASPzzKjb

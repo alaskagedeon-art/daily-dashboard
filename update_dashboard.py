@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 import re
+import ssl
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import date
+
+try:
+    import certifi
+    SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    SSL_CTX = ssl.create_default_context()
 
 TAX_DUE = date(2026, 4, 15)
 
@@ -10,6 +17,8 @@ FEEDS = [
     "https://feeds.apnews.com/rss/topnews",
     "https://feeds.bbci.co.uk/news/rss.xml",
     "https://feeds.npr.org/1001/rss.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    "https://www.theguardian.com/world/rss",
 ]
 
 
@@ -19,10 +28,14 @@ def days_past_due():
 
 def fetch_feed(url):
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as r:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/rss+xml, application/xml, text/xml, */*",
+        })
+        with urllib.request.urlopen(req, context=SSL_CTX, timeout=15) as r:
             return r.read()
-    except Exception:
+    except Exception as e:
+        print(f"Feed failed {url}: {e}")
         return None
 
 
